@@ -472,7 +472,8 @@ keycloak.setAdapterConfig(configuration.getKeycloakConfiguration());</code></pre
 <div class="listingblock">
 <div class="title">KeycloakBundle.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in dropwizard-jaxrs/README.adoc - include::src/main/java/de/ahus1/keycloak/dropwizardjaxrs/KeycloakBundle.java[tags=keycloak]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java">KeycloakAuthFactory authFactory = createAuthFactory(configuration);
+environment.jersey().register(AuthFactory.binder(authFactory));</code></pre>
 </div>
 </div>
 </li>
@@ -481,7 +482,11 @@ keycloak.setAdapterConfig(configuration.getKeycloakConfiguration());</code></pre
 <div class="listingblock">
 <div class="title">KeycloakBundle.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in dropwizard-jaxrs/README.adoc - include::src/main/java/de/ahus1/keycloak/dropwizardjaxrs/KeycloakBundle.java[tags=constraint]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java">KeycloakJettyAuthenticator keycloak = <span class="keyword">new</span> KeycloakDropwizardAuthenticator();
+keycloak.setAdapterConfig(getKeycloakConfiguration(configuration));
+ConstraintSecurityHandler securityHandler = <span class="keyword">new</span> ConstraintSecurityHandler();
+environment.getApplicationContext().setSecurityHandler(securityHandler);
+environment.getApplicationContext().getSecurityHandler().setAuthenticator(keycloak);</code></pre>
 </div>
 </div>
 </li>
@@ -756,7 +761,7 @@ environment.jersey().register(filter);</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-09 07:22:16 UTC
+Last updated 2015-10-09 08:25:24 UTC
 </div>
 </div>
 </body>
