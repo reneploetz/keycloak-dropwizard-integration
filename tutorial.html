@@ -551,13 +551,13 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">LotteryConfiguration</span> <span class="directive">extends</span> <span class="predefined-type">Configuration</span> {
 
-    <span class="directive">private</span> AdapterConfig keycloakConfiguration = <span class="keyword">new</span> AdapterConfig();
+    <span class="directive">private</span> KeycloakConfiguration keycloakConfiguration = <span class="keyword">new</span> KeycloakConfiguration();
 
-    <span class="directive">public</span> AdapterConfig getKeycloakConfiguration() {
+    <span class="directive">public</span> KeycloakConfiguration getKeycloakConfiguration() {
         <span class="keyword">return</span> keycloakConfiguration;
     }
 
-    <span class="directive">public</span> <span class="type">void</span> setKeycloakConfiguration(AdapterConfig keycloakConfiguration) {
+    <span class="directive">public</span> <span class="type">void</span> setKeycloakConfiguration(KeycloakConfiguration keycloakConfiguration) {
         <span class="local-variable">this</span>.keycloakConfiguration = keycloakConfiguration;
     }
 }</code></pre>
@@ -571,7 +571,7 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java">bootstrap.addBundle(<span class="keyword">new</span> KeycloakBundle&lt;LotteryConfiguration&gt;() {
     <span class="annotation">@Override</span>
-    <span class="directive">protected</span> AdapterConfig getKeycloakConfiguration(LotteryConfiguration configuration) {
+    <span class="directive">protected</span> KeycloakConfiguration getKeycloakConfiguration(LotteryConfiguration configuration) {
         <span class="keyword">return</span> configuration.getKeycloakConfiguration();
     }
 });</code></pre>
@@ -761,7 +761,7 @@ environment.jersey().register(filter);</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-09 08:25:24 UTC
+Last updated 2015-10-09 13:22:15 UTC
 </div>
 </div>
 </body>
