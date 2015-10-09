@@ -91,7 +91,7 @@ It handles user credentials for you application, so you can focus on business re
 </div>
 <div class="paragraph">
 <p><strong>TL;DR:</strong> The module
-<a href="https://github.com/ahus1/keycloak-dropwizard-integration/tree/master/keycloak-dropwizard-jaxrs">keycloak-dropwizard-jaxrs</a>
+<a href="https://github.com/ahus1/keycloak-dropwizard-integration/tree/master/keycloak-dropwizard-jaxrs-example">keycloak-dropwizard-jaxrs-example</a>
 shows how to use Dropwizard&#8217;s <code>@Auth</code> annotation with Keycloak using a full OAuth flow.</p>
 </div>
 <div class="paragraph">
@@ -472,8 +472,7 @@ keycloak.setAdapterConfig(configuration.getKeycloakConfiguration());</code></pre
 <div class="listingblock">
 <div class="title">KeycloakBundle.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">KeycloakAuthFactory authFactory = createAuthFactory(configuration);
-environment.jersey().register(AuthFactory.binder(authFactory));</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in dropwizard-jaxrs/README.adoc - include::src/main/java/de/ahus1/keycloak/dropwizardjaxrs/KeycloakBundle.java[tags=keycloak]</code></pre>
 </div>
 </div>
 </li>
@@ -482,11 +481,7 @@ environment.jersey().register(AuthFactory.binder(authFactory));</code></pre>
 <div class="listingblock">
 <div class="title">KeycloakBundle.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">KeycloakJettyAuthenticator keycloak = <span class="keyword">new</span> KeycloakDropwizardAuthenticator();
-keycloak.setAdapterConfig(getKeycloakConfiguration(configuration));
-ConstraintSecurityHandler securityHandler = <span class="keyword">new</span> ConstraintSecurityHandler();
-environment.getApplicationContext().setSecurityHandler(securityHandler);
-environment.getApplicationContext().getSecurityHandler().setAuthenticator(keycloak);</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in dropwizard-jaxrs/README.adoc - include::src/main/java/de/ahus1/keycloak/dropwizardjaxrs/KeycloakBundle.java[tags=constraint]</code></pre>
 </div>
 </div>
 </li>
@@ -571,12 +566,6 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java">bootstrap.addBundle(<span class="keyword">new</span> KeycloakBundle&lt;LotteryConfiguration&gt;() {
     <span class="annotation">@Override</span>
-    <span class="directive">protected</span> KeycloakAuthFactory createAuthFactory(LotteryConfiguration configuration) {
-        <span class="keyword">return</span> <span class="keyword">new</span> KeycloakAuthFactory(getKeycloakConfiguration(configuration), <span class="string"><span class="delimiter">&quot;</span><span class="content">dropwizard</span><span class="delimiter">&quot;</span></span>,
-                <span class="keyword">new</span> KeycloakAuthenticator(), Authentication.class);
-    }
-
-    <span class="annotation">@Override</span>
     <span class="directive">protected</span> AdapterConfig getKeycloakConfiguration(LotteryConfiguration configuration) {
         <span class="keyword">return</span> configuration.getKeycloakConfiguration();
     }
@@ -598,19 +587,19 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 
     <span class="annotation">@POST</span>
     <span class="annotation">@Path</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/draw</span><span class="delimiter">&quot;</span></span>)
-    <span class="directive">public</span> DrawView draw(<span class="annotation">@FormParam</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">date</span><span class="delimiter">&quot;</span></span>) <span class="predefined-type">String</span> dateAsString, <span class="annotation">@Auth</span> Authentication auth) { <i class="conum" data-value="1"></i><b>(1)</b>
-        auth.checkUserInRole(<span class="predefined-type">Role</span>.USER);
+    <span class="directive">public</span> DrawView draw(<span class="annotation">@FormParam</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">date</span><span class="delimiter">&quot;</span></span>) <span class="predefined-type">String</span> dateAsString, <span class="annotation">@Auth</span> User auth) { <i class="conum" data-value="1"></i><b>(1)</b>
+        auth.checkUserInRole(<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span>);
         DrawBean bean = <span class="keyword">new</span> DrawBean();
         LocalDate date = LocalDate.parse(dateAsString);
         bean.setDraw(DrawingService.drawNumbers(date));
         DrawView view = <span class="keyword">new</span> DrawView(bean);
-        bean.setIdToken(auth.getIdToken());
+        bean.setName(auth.getName());
         <span class="keyword">return</span> view;
     }
 
     <span class="annotation">@GET</span>
     <span class="annotation">@Path</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/logout</span><span class="delimiter">&quot;</span></span>)
-    <span class="directive">public</span> LogoutView logout(<span class="annotation">@Auth</span>(required = <span class="predefined-constant">false</span>) Authentication auth) <span class="directive">throws</span> ServletException { <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="directive">public</span> LogoutView logout(<span class="annotation">@Auth</span>(required = <span class="predefined-constant">false</span>) User auth) <span class="directive">throws</span> ServletException { <i class="conum" data-value="2"></i><b>(2)</b>
         <span class="comment">// request.logout(); // no effect as we didn't hook into jetty</span>
         <span class="keyword">if</span> (auth != <span class="predefined-constant">null</span>) {
             auth.logout();
@@ -767,7 +756,7 @@ environment.jersey().register(filter);</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-08 21:28:30 UTC
+Last updated 2015-10-09 07:22:16 UTC
 </div>
 </div>
 </body>
