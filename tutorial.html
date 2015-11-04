@@ -110,6 +110,9 @@ The first releases are now available (both from jcenter and Maven central):</p>
 <a class="image" href="https://bintray.com/ahus1/maven/keycloak-dropwizard/_latestVersion"><img src="https://api.bintray.com/packages/ahus1/maven/keycloak-dropwizard/images/download.svg" alt="download"></a>
 </div>
 </div>
+<div class="paragraph">
+<p>Version 0.3.x is tested with Keycloak 1.5 and Dropwizard 0.9</p>
+</div>
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
@@ -486,17 +489,7 @@ keycloak.setAdapterConfig(configuration.getKeycloakConfiguration());</code></pre
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Setup keycloak as an Authentication Handler in Dropwizard style:</p>
-<div class="listingblock">
-<div class="title">KeycloakBundle.java</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">KeycloakAuthFactory authFactory = createAuthFactory(configuration);
-environment.jersey().register(AuthFactory.binder(authFactory));</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Setup security constraint handler</p>
+<p>Setup keycloak as an Authenticator to handle pre-auth integration:</p>
 <div class="listingblock">
 <div class="title">KeycloakBundle.java</div>
 <div class="content">
@@ -508,13 +501,28 @@ environment.getApplicationContext().getSecurityHandler().setAuthenticator(keyclo
 </div>
 </div>
 </li>
+<li>
+<p>Setup the authentication factory</p>
+<div class="listingblock">
+<div class="title">KeycloakBundle.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">environment.jersey().register(<span class="keyword">new</span> AuthDynamicFeature(
+        createAuthFactory(configuration)));
+<span class="comment">// To use @RolesAllowed annotations</span>
+environment.jersey().register(RolesAllowedDynamicFeature.class);
+<span class="comment">// To use @Auth to inject a custom Principal type into your resource</span>
+environment.jersey().register(<span class="keyword">new</span> AuthValueFactoryProvider.Binder&lt;&gt;(getUserClass()));</code></pre>
+</div>
+</div>
+</li>
 </ol>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_how_to_use_it">5.3. How to use it</h3>
 <div class="paragraph">
-<p>Anyone who wants to use this will need register this bundle and will need to provide an own implementation derived from <code>AbstractKeycloakAuthenticator</code> together with an class encapsulating the user&#8217;s authentication that might be derived from <code>Authentication</code>. Please see the next chapter how to integrate.</p>
+<p>Anyone who wants to use this will need register this bundle and will need to provide an own implementation derived from <code>KeycloakBundle</code> together with an class encapsulating the user&#8217;s authentication that might be derived from <code>AbstractUser</code>.
+Please see the next chapter how to integrate.</p>
 </div>
 </div>
 </div>
@@ -608,10 +616,13 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 <span class="annotation">@Produces</span>(MediaType.TEXT_HTML)
 <span class="directive">public</span> <span class="type">class</span> <span class="class">DrawRessource</span> {
 
+    <span class="annotation">@Context</span>
+    <span class="directive">private</span> HttpServletRequest request;
+
     <span class="annotation">@POST</span>
     <span class="annotation">@Path</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/draw</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@RolesAllowed</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span>)
     <span class="directive">public</span> DrawView draw(<span class="annotation">@FormParam</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">date</span><span class="delimiter">&quot;</span></span>) <span class="predefined-type">String</span> dateAsString, <span class="annotation">@Auth</span> User auth) { <i class="conum" data-value="1"></i><b>(1)</b>
-        auth.checkUserInRole(<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span>);
         DrawBean bean = <span class="keyword">new</span> DrawBean();
         LocalDate date = LocalDate.parse(dateAsString);
         bean.setDraw(DrawingService.drawNumbers(date));
@@ -622,10 +633,9 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 
     <span class="annotation">@GET</span>
     <span class="annotation">@Path</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/logout</span><span class="delimiter">&quot;</span></span>)
-    <span class="directive">public</span> LogoutView logout(<span class="annotation">@Auth</span>(required = <span class="predefined-constant">false</span>) User auth) <span class="directive">throws</span> ServletException { <i class="conum" data-value="2"></i><b>(2)</b>
-        <span class="comment">// request.logout(); // no effect as we didn't hook into jetty</span>
-        <span class="keyword">if</span> (auth != <span class="predefined-constant">null</span>) {
-            auth.logout();
+    <span class="directive">public</span> LogoutView logout(<span class="annotation">@Context</span> SecurityContext context) <span class="directive">throws</span> ServletException { <i class="conum" data-value="2"></i><b>(2)</b>
+        <span class="keyword">if</span> (context.getUserPrincipal() != <span class="predefined-constant">null</span>) {
+            request.logout();
         }
         <span class="keyword">return</span> <span class="keyword">new</span> LogoutView();
     }
@@ -641,7 +651,7 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>An optional authentication provides the authentication details if the user is logged in already</td>
+<td>Access the security context directly to find out if the user is logged in without forcing authentication</td>
 </tr>
 </table>
 </div>
@@ -764,7 +774,7 @@ environment.jersey().register(filter);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>mvn test -pl keycloak-dropwizard-bearer -am -Peycloak-dropwizard-bearer</pre>
+<pre>mvn test -pl keycloak-dropwizard-bearer -am -Pkeycloak-dropwizard-bearer</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -779,7 +789,7 @@ environment.jersey().register(filter);</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-31 20:06:05 UTC
+Last updated 2015-11-04 16:50:58 UTC
 </div>
 </div>
 </body>
