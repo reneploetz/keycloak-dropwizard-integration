@@ -67,6 +67,13 @@
 <li><a href="#_how_to_run_5">7.3. How to run</a></li>
 </ul>
 </li>
+<li><a href="#_dropwizard_integration_for_bearer_only_rest_services_with_dropwizard_module">8. Dropwizard Integration for Bearer-Only REST services with Dropwizard Module</a>
+<ul class="sectlevel2">
+<li><a href="#_what_you_can_see_here_7">8.1. What you can see here</a></li>
+<li><a href="#_setup_for_keycloak_4">8.2. Setup for Keycloak</a></li>
+<li><a href="#_how_to_run_6">8.3. How to run</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -111,7 +118,7 @@ The first releases are now available (both from jcenter and Maven central):</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Version 0.3.x is tested with Keycloak 1.5 and Dropwizard 0.9</p>
+<p>Version 0.3.x is tested with Keycloak 1.6 and Dropwizard 0.9</p>
 </div>
 <div class="listingblock">
 <div class="title">pom.xml</div>
@@ -786,10 +793,117 @@ environment.jersey().register(filter);</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_dropwizard_integration_for_bearer_only_rest_services_with_dropwizard_module">8. Dropwizard Integration for Bearer-Only REST services with Dropwizard Module</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_what_you_can_see_here_7">8.1. What you can see here</h3>
+<div class="paragraph">
+<p>This is a setup that includes a small JavaScript client that interfaces with a REST backend.
+The client authenticates all requests using a Bearer Token.</p>
+</div>
+<div class="paragraph">
+<p>The different to the example <code>keycloak-dropwizard-bearer</code> is here that the keycloak-dropwizard module is used in this example.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_setup_for_keycloak_4">8.2. Setup for Keycloak</h3>
+<div class="paragraph">
+<p>The following elements add Keycloak authentication to Dropwizard and are identical to the simple setup:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add Keycloak <code>config-bearer.yml</code> with bearer only authentication. This way the Keycloak will not
+initiate the OAuth redirecting flow. And the Keycloak Dropwiazrd module with not interfere with any
+OAuth redirect initiated by the frontend.</p>
+<div class="listingblock">
+<div class="title">config-bearer.yml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">keycloakConfiguration</span>:
+  <span class="key">bearerOnly</span>: <span class="string"><span class="content">true</span></span></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add Keycloak as a security constraint to <code>LotteryConfiguration.java</code>, but without the role and URL mappings.</p>
+<div class="listingblock">
+<div class="title">LotteryConfiguration.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">LotteryConfiguration</span> <span class="directive">extends</span> <span class="predefined-type">Configuration</span> {
+
+    <span class="directive">private</span> KeycloakConfiguration keycloakConfiguration = <span class="keyword">new</span> KeycloakConfiguration();
+
+    <span class="directive">public</span> KeycloakConfiguration getKeycloakConfiguration() {
+        <span class="keyword">if</span>(keycloakConfiguration.isBearerOnly() == <span class="predefined-constant">false</span>) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">RuntimeException</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">For this application the backend must be configured 'bearer only'. </span><span class="delimiter">&quot;</span></span> +
+                    <span class="string"><span class="delimiter">&quot;</span><span class="content">This avoids confusion of the keycloak dropwizard plugin when detecting OAuth redirects</span><span class="delimiter">&quot;</span></span>);
+        }
+        <span class="keyword">return</span> keycloakConfiguration;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setKeycloakConfiguration(KeycloakConfiguration keycloakConfiguration) {
+        <span class="local-variable">this</span>.keycloakConfiguration = keycloakConfiguration;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add Keycloak as a filter to the REST stack.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Be aware that all calls to REST ressources now require a Bearer Token. There are no unauthenticated requests any more (except to static ressources)
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">LotteryApplication.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">bootstrap.addBundle(<span class="keyword">new</span> KeycloakBundle&lt;LotteryConfiguration&gt;() {
+    <span class="annotation">@Override</span>
+    <span class="directive">protected</span> KeycloakConfiguration getKeycloakConfiguration(LotteryConfiguration configuration) {
+        <span class="keyword">return</span> configuration.getKeycloakConfiguration();
+    }
+});</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A very short and simple JavaScript client is located in <code>src/main/ressources/assets/ajax</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_to_run_6">8.3. How to run</h3>
+<div class="paragraph">
+<p>Use the following command line to start it from the parent&#8217;s directory</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>mvn test -pl keycloak-dropwizard-bearermodule -am -Pkeycloak-dropwizard-bearermodule</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once it is started, point your browser to <a href="http://localhost:9090/ajax/index.html" class="bare">http://localhost:9090/ajax/index.html</a> to see the application.</p>
+</div>
+<div class="paragraph">
+<p>Enter a date like <code>2015-01-01</code> to see the predicted results of the given date.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-11-04 17:15:55 UTC
+Last updated 2015-11-11 23:31:37 UTC
 </div>
 </div>
 </body>
