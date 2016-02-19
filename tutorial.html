@@ -117,8 +117,15 @@ The first releases are now available (both from jcenter and Maven central):</p>
 <a class="image" href="https://bintray.com/ahus1/maven/keycloak-dropwizard/_latestVersion"><img src="https://api.bintray.com/packages/ahus1/maven/keycloak-dropwizard/images/download.svg" alt="download"></a>
 </div>
 </div>
-<div class="paragraph">
-<p>Version 0.5.x is tested with Keycloak 1.8 and Dropwizard 0.9</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Version 0.6.x is tested with Keycloak 1.8 and Dropwizard 0.9</p>
+</li>
+<li>
+<p>Version 0.7.x is tested with Keycloak 1.9 and Dropwizard 0.9</p>
+</li>
+</ul>
 </div>
 <div class="listingblock">
 <div class="title">pom.xml</div>
@@ -398,10 +405,10 @@ limitations under the License.</p>
 <span class="key">keycloakConfiguration</span>:
   <span class="key">realm</span>: <span class="string"><span class="content">test</span></span>
   <span class="key">realmKey</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">MIIB...AQAB</span><span class="delimiter">&quot;</span></span>
-  <span class="key">authServerUrl</span>: <span class="string"><span class="content">http://localhost:8080/auth</span></span>
-  <span class="key">sslRequired</span>: <span class="string"><span class="content">none</span></span>
-  <span class="key">registerNodeAtStartup</span>: <span class="string"><span class="content">true</span></span>
-  <span class="key">registerNodePeriod</span>: <span class="string"><span class="content">600</span></span>
+  <span class="key">auth-server-url</span>: <span class="string"><span class="content">http://localhost:8080/auth</span></span>
+  <span class="key">ssl-required</span>: <span class="string"><span class="content">none</span></span>
+  <span class="key">register-node-at-startup</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">register-node-period</span>: <span class="string"><span class="content">600</span></span>
   <span class="key">resource</span>: <span class="string"><span class="content">test</span></span>
   <span class="key">credentials</span>:
     <span class="key">secret</span>: <span class="string"><span class="content">7abd7d08-b10f-4513-bbba-aebebddabb45</span></span></code></pre>
@@ -567,10 +574,10 @@ But instead of relying on security constraints it uses Dropwizard&#8217;s <code>
 <span class="key">keycloakConfiguration</span>:
   <span class="key">realm</span>: <span class="string"><span class="content">test</span></span>
   <span class="key">realmKey</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">MIIB...AQAB</span><span class="delimiter">&quot;</span></span>
-  <span class="key">authServerUrl</span>: <span class="string"><span class="content">http://localhost:8080/auth</span></span>
-  <span class="key">sslRequired</span>: <span class="string"><span class="content">none</span></span>
-  <span class="key">registerNodeAtStartup</span>: <span class="string"><span class="content">true</span></span>
-  <span class="key">registerNodePeriod</span>: <span class="string"><span class="content">600</span></span>
+  <span class="key">auth-server-url</span>: <span class="string"><span class="content">http://localhost:8080/auth</span></span>
+  <span class="key">ssl-required</span>: <span class="string"><span class="content">none</span></span>
+  <span class="key">register-node-at-startup</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">register-node-period</span>: <span class="string"><span class="content">600</span></span>
   <span class="key">resource</span>: <span class="string"><span class="content">test</span></span>
   <span class="key">credentials</span>:
     <span class="key">secret</span>: <span class="string"><span class="content">7abd7d08-b10f-4513-bbba-aebebddabb45</span></span></code></pre>
@@ -715,10 +722,10 @@ The client authenticates all requests using a Bearer Token.</p>
 <span class="key">keycloakConfiguration</span>:
   <span class="key">realm</span>: <span class="string"><span class="content">test</span></span>
   <span class="key">realmKey</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">MIIB...AQAB</span><span class="delimiter">&quot;</span></span>
-  <span class="key">authServerUrl</span>: <span class="string"><span class="content">http://localhost:8080/auth</span></span>
-  <span class="key">sslRequired</span>: <span class="string"><span class="content">none</span></span>
-  <span class="key">registerNodeAtStartup</span>: <span class="string"><span class="content">true</span></span>
-  <span class="key">registerNodePeriod</span>: <span class="string"><span class="content">600</span></span>
+  <span class="key">auth-server-url</span>: <span class="string"><span class="content">http://localhost:8080/auth</span></span>
+  <span class="key">ssl-required</span>: <span class="string"><span class="content">none</span></span>
+  <span class="key">register-node-at-startup</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">register-node-period</span>: <span class="string"><span class="content">600</span></span>
   <span class="key">resource</span>: <span class="string"><span class="content">test</span></span>
   <span class="key">credentials</span>:
     <span class="key">secret</span>: <span class="string"><span class="content">7abd7d08-b10f-4513-bbba-aebebddabb45</span></span></code></pre>
@@ -821,7 +828,7 @@ OAuth redirect initiated by the frontend.</p>
 <div class="title">config-bearer.yml</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">keycloakConfiguration</span>:
-  <span class="key">bearerOnly</span>: <span class="string"><span class="content">true</span></span></code></pre>
+  <span class="key">bearer-only</span>: <span class="string"><span class="content">true</span></span></code></pre>
 </div>
 </div>
 </li>
